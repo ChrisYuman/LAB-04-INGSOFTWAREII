@@ -7,3 +7,5 @@ passlib==1.7.4
 python-dotenv==1.0.0
 httpx==0.25.2
 pytest==7.4.3
+pylint
+pytest-cov

@@ -1,0 +1,53 @@
+name: CI Pipeline - Inventario Ventas API
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build, Test & Analyze
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./inventario-ventas-api
+
+    steps:
+      # Etapa 1: Checkout - Descargar el código del repositorio en el runner
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Necesario para que SonarQube analice el historial (blame)
+
+      # Etapa 2: Setup del entorno - Preparar Python 3.11
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # Etapa 3: Instalación de dependencias
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pylint pytest-cov
+
+      # Etapa 4: Pruebas unitarias con reporte de cobertura
+      - name: Ejecutar pruebas unitarias
+        run: |
+          python -m pytest tests/ -v --tb=short --cov=. --cov-report=xml:coverage.xml
+
+      # Etapa 5: Análisis estático con pylint
+      - name: Ejecutar análisis estático (pylint)
+        run: |
+          pylint --disable=C0114,C0115,C0116,E0401,E1101,R0903 --max-line-length=120 services/ utils/ integrations/ config/ || true
+
+      # Etapa 6: SonarQube Cloud Scan
+      - name: SonarQube Cloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        with:
+          projectBaseDir: ./inventario-ventas-api
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
