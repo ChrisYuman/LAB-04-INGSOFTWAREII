@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from models.venta import Venta, VentaItem
 from models.inventario import Inventario
-from utils.calculadora_impuestos import calc_imp
+from utils.calculadora_impuestos import calcular_total
 import sqlite3
 
 # DEFECTO: Comentario engañoso/obsoleto
