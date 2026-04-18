@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratorio 7 – Gestión de Configuración y Migración del Sistema</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface2: #334155;
+            --border: #475569;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent2: #818cf8;
+            --green: #4ade80;
+            --yellow: #fbbf24;
+            --red: #f87171;
+            --orange: #fb923c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 14px;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 40px 30px; }
+
+        /* ===== PORTADA ===== */
+        .cover {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e1b4b 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+        .cover h1 {
+            font-size: 28px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .cover .subtitle { font-size: 16px; color: var(--text-muted); margin-bottom: 25px; }
+        .cover .meta { font-size: 13px; color: var(--text-muted); line-height: 2; }
+        .cover .meta strong { color: var(--text); }
+
+        /* ===== SECCIONES ===== */
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+        .section-number {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        h2 {
+            font-size: 22px; font-weight: 700; color: var(--accent);
+            margin-bottom: 20px; padding-bottom: 12px;
+            border-bottom: 2px solid var(--surface2);
+        }
+        h3 { font-size: 16px; font-weight: 600; color: var(--accent2); margin: 22px 0 10px 0; }
+        h4 { font-size: 14px; font-weight: 600; color: var(--yellow); margin: 15px 0 8px 0; }
+        p { margin-bottom: 12px; }
+        ul, ol { margin: 8px 0 12px 20px; }
+        li { margin-bottom: 5px; }
+
+        /* ===== CÓDIGO ===== */
+        pre {
+            background: #0d1117; border: 1px solid var(--surface2);
+            border-radius: 8px; padding: 16px; overflow-x: auto;
+            font-size: 12px; line-height: 1.5; margin: 12px 0; color: #c9d1d9;
+        }
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: var(--surface2); padding: 2px 6px;
+            border-radius: 4px; font-size: 12px;
+        }
+        pre code { background: none; padding: 0; }
+
+        /* ===== TABLAS ===== */
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 13px; }
+        th {
+            background: var(--surface2); color: var(--accent);
+            padding: 10px 12px; text-align: left; font-weight: 600;
+            border: 1px solid var(--border);
+        }
+        td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+        tr:nth-child(even) { background: rgba(51,65,85,0.3); }
+
+        /* ===== TAGS ===== */
+        .tag {
+            display: inline-block; padding: 2px 10px;
+            border-radius: 12px; font-size: 11px; font-weight: 600;
+        }
+        .tag-green { background: rgba(74,222,128,0.15); color: var(--green); }
+        .tag-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+        .tag-red { background: rgba(248,113,113,0.15); color: var(--red); }
+        .tag-blue { background: rgba(56,189,248,0.15); color: var(--accent); }
+        .tag-purple { background: rgba(129,140,248,0.15); color: var(--accent2); }
+
+        /* ===== ALERTAS ===== */
+        .alert {
+            padding: 14px 18px; border-radius: 8px;
+            margin: 12px 0; font-size: 13px; border-left: 4px solid;
+        }
+        .alert-info { background: rgba(56,189,248,0.08); border-color: var(--accent); }
+        .alert-warn { background: rgba(251,191,36,0.08); border-color: var(--yellow); }
+        .alert-danger { background: rgba(248,113,113,0.08); border-color: var(--red); }
+        .alert-success { background: rgba(74,222,128,0.08); border-color: var(--green); }
+
+        /* ===== DIAGRAMAS ===== */
+        .diagram {
+            background: #0d1117; border: 1px solid var(--surface2);
+            border-radius: 8px; padding: 20px; margin: 15px 0;
+            font-family: 'Consolas', monospace; font-size: 12px;
+            line-height: 1.6; overflow-x: auto; white-space: pre; color: #8b949e;
+        }
+
+        /* ===== SEPARADOR DE SECCIÓN ===== */
+        .section-divider {
+            text-align: center;
+            padding: 30px 0;
+            position: relative;
+        }
+        .section-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+        }
+        .section-divider span {
+            background: var(--bg);
+            padding: 0 20px;
+            position: relative;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* ===== PRINT ===== */
+        @media print {
+            body { background: white; color: #1a1a1a; font-size: 11px; }
+            .container { max-width: 100%; padding: 10px; }
+            .section { border: 1px solid #ccc; break-inside: avoid; }
+            .cover { background: #f5f5f5 !important; }
+            .cover h1 { color: #1a1a1a; -webkit-text-fill-color: #1a1a1a; }
+            h2 { color: #2563eb; } h3 { color: #4338ca; }
+            pre { background: #f6f8fa; color: #24292e; border: 1px solid #d0d7de; }
+            th { background: #f0f0f0; color: #1a1a1a; }
+            td { border-color: #ccc; }
+            .section-divider span { background: white; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- ════════════════════ PORTADA ════════════════════ -->
+    <div class="cover">
+        <h1>Laboratorio 7</h1>
+        <div class="subtitle">Gestión de Configuración y Migración del Sistema</div>
+        <div class="meta">
+            <strong>Universidad Rafael Landívar</strong><br>
+            Ingeniería de Software II<br><br>
+            <strong>Sistema:</strong> API de Inventarios y Ventas<br>
+            <strong>Stack:</strong> Python 3.11 / FastAPI / SQLAlchemy / SQLite<br>
+            <strong>Repositorio:</strong> LAB-06-INGSOFTWAREII<br>
+            <strong>Fecha:</strong> Abril 2026
+        </div>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════╗ -->
+    <!-- ║  1. MARCO CONCEPTUAL                                        ║ -->
+    <!-- ╚══════════════════════════════════════════════════════════════╝ -->
+    <div class="section-divider"><span>Sección 1 de 7</span></div>
+
+    <div class="section">
+        <span class="section-number">1 / 7</span>
+        <h2>Marco Conceptual</h2>
+
+        <!-- 4.1 -->
+        <h3>Gestión de Configuración</h3>
+        <p>La gestión de configuración es la disciplina que se encarga de identificar, controlar y dar seguimiento a todos los elementos que componen un sistema de software a lo largo de su ciclo de vida. En nuestro sistema de inventarios y ventas, esto abarca no solo el código fuente de la API (routers, services, models), sino también los esquemas de base de datos, las variables de entorno (<code>settings.py</code>, <code>.env</code>), las dependencias del proyecto (<code>requirements.txt</code>), la configuración del pipeline CI/CD (<code>ci.yml</code>), y la configuración de análisis estático (<code>sonar-project.properties</code>).</p>
+        <p>En un sistema que ya está operando en producción —como asumimos en este laboratorio—, la gestión de configuración es crítica porque un cambio no rastreado en cualquiera de estos elementos puede causar fallos en cascada. Por ejemplo, si alguien modifica <code>settings.py</code> para cambiar la <code>DATABASE_URL</code> sin documentarlo, el despliegue siguiente podría apuntar a una base de datos incorrecta y corromper datos reales de clientes y ventas.</p>
+        <p><strong>Elementos que controlamos:</strong></p>
+        <ul>
+            <li><strong>Código fuente:</strong> todos los módulos Python bajo <code>models/</code>, <code>services/</code>, <code>routers/</code>, <code>schemas/</code>, <code>integrations/</code>, <code>utils/</code></li>
+            <li><strong>Versiones del sistema:</strong> archivo <code>VERSION</code> y <code>CHANGELOG.md</code></li>
+            <li><strong>Estructura de datos:</strong> modelos SQLAlchemy y la base de datos <code>inventario_ventas.db</code></li>
+            <li><strong>Entornos y configuración:</strong> <code>settings.py</code>, <code>.env.example</code>, variables de entorno</li>
+            <li><strong>Pipeline:</strong> <code>.github/workflows/ci.yml</code></li>
+            <li><strong>Dependencias:</strong> <code>requirements.txt</code></li>
+        </ul>
+
+        <!-- 4.2 -->
+        <h3>Versionamiento del Software</h3>
+        <p>El versionamiento semántico (SemVer) utiliza el formato <strong>MAJOR.MINOR.PATCH</strong> para comunicar la naturaleza de los cambios en cada release. Aplicado a nuestro sistema:</p>
+        <ul>
+            <li><strong>MAJOR (ej. 1.0.0 → 2.0.0):</strong> cambio que rompe la compatibilidad hacia atrás. Si dividimos el campo <code>nombre</code> de usuarios en <code>nombre</code> y <code>apellido</code>, los consumidores de la API reciben una respuesta con estructura distinta → rompe integraciones existentes.</li>
+            <li><strong>MINOR (ej. 1.0.0 → 1.1.0):</strong> funcionalidad nueva sin romper lo existente. Agregar un endpoint de reportes de ventas por fecha no afecta a quienes ya usan checkout o productos.</li>
+            <li><strong>PATCH (ej. 1.0.0 → 1.0.1):</strong> corrección de bugs sin funcionalidad nueva. Arreglar la vulnerabilidad de SQL injection en <code>buscar_venta_por_cliente()</code>.</li>
+        </ul>
+        <p>Romper compatibilidad significa que el contrato implícito entre la API y sus consumidores (frontends, integraciones externas) deja de ser válido. Esto obliga a los clientes a modificar su código para adaptarse, lo cual tiene un costo alto en producción.</p>
+
+        <!-- 4.3 -->
+        <h3>Gestión de Cambios</h3>
+        <p>Un cambio en producción es toda modificación deliberada al sistema que está siendo utilizado por usuarios reales. A diferencia de un cambio en desarrollo, tiene impacto directo e inmediato. Los clasificamos en tres tipos:</p>
+        <ul>
+            <li><strong>Cambio funcional:</strong> altera el comportamiento visible del sistema. Ejemplo: agregar paginación al listado de productos o permitir filtrar ventas por rango de fechas.</li>
+            <li><strong>Cambio técnico:</strong> mejora interna que no cambia la funcionalidad visible. Ejemplo: reemplazar <code>hashlib.md5</code> por <code>bcrypt</code> para el hashing de contraseñas en <code>auth_service.py</code>.</li>
+            <li><strong>Cambio de datos:</strong> modifica la estructura o contenido de la base de datos. Ejemplo: agregar la tabla <code>categorias</code> y vincularla con <code>productos</code>, o dividir el campo <code>nombre</code> de usuarios.</li>
+        </ul>
+
+        <!-- 4.4 -->
+        <h3>Rollback</h3>
+        <p>Un rollback es la acción de revertir el sistema a un estado anterior estable, deshaciendo los cambios de un despliegue problemático. Se utiliza cuando, después de un deploy, se detectan errores críticos que afectan la operación normal: por ejemplo, si tras migrar <code>usuarios</code>, el endpoint de checkout deja de funcionar porque no encuentra el campo <code>nombre</code> esperado.</p>
+        <p><strong>Riesgos asociados:</strong></p>
+        <ul>
+            <li><strong>Pérdida de datos:</strong> si se crearon registros nuevos con el esquema nuevo, revertir al viejo puede hacer que esos datos queden inaccesibles.</li>
+            <li><strong>Inconsistencia:</strong> si la migración ya transformó datos (ej. dividió "Juan Pérez" en nombre="Juan", apellido="Pérez"), revertir el esquema no reconstruye el original.</li>
+            <li><strong>Downtime extendido:</strong> el rollback puede tomar más tiempo que el despliegue original.</li>
+        </ul>
+
+        <!-- 4.5 -->
+        <h3>Migración de Datos (ETL / ELT)</h3>
+        <p><strong>ETL (Extract-Transform-Load):</strong> extrae datos del origen, los transforma en un sistema intermedio (limpia, mapea, valida), y luego los carga en el destino. Es más seguro porque la transformación ocurre fuera de producción. En nuestro sistema, extraeríamos los usuarios, transformaríamos el campo <code>nombre</code> dividiéndolo en Python, y cargaríamos los resultados en la nueva estructura.</p>
+        <p><strong>ELT (Extract-Load-Transform):</strong> carga los datos al destino primero y transforma directamente en la BD destino usando SQL. Es más rápido pero más riesgoso porque opera sobre datos vivos.</p>
+        <p><strong>Problemas comunes aplicables a nuestro sistema:</strong></p>
+        <ul>
+            <li><strong>Duplicados:</strong> si la migración se ejecuta dos veces, podríamos insertar categorías o proveedores duplicados.</li>
+            <li><strong>Inconsistencias de formato:</strong> el campo <code>nombre</code> puede tener "Juan Pérez", "MARIA GARCIA", "  josé  " — formatos variados que hacen que la división produzca resultados inesperados.</li>
+            <li><strong>Datos incompletos:</strong> usuarios con <code>nombre</code> vacío o NULL causan errores en la transformación.</li>
+            <li><strong>Relaciones inválidas:</strong> ventas cuyo <code>usuario_id</code> apunta a un usuario eliminado, o inventarios sin producto correspondiente.</li>
+        </ul>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════╗ -->
+    <!-- ║  2. ESTRATEGIA DE VERSIONAMIENTO                            ║ -->
+    <!-- ╚══════════════════════════════════════════════════════════════╝ -->
+    <div class="section-divider"><span>Sección 2 de 7</span></div>
+
+    <div class="section">
+        <span class="section-number">2 / 7</span>
+        <h2>Estrategia de Versionamiento</h2>
+
+        <h3>Versión Actual del Sistema</h3>
+        <table>
+            <tr><th>Atributo</th><th>Valor</th></tr>
+            <tr><td>Versión</td><td><span class="tag tag-green">v1.0.0</span></td></tr>
+            <tr><td>Tag Git</td><td><code>v1.0.0</code></td></tr>
+            <tr><td>Rama</td><td><code>main</code></td></tr>
+            <tr><td>Estado</td><td>En producción (asumido)</td></tr>
+            <tr><td>Archivos de control</td><td><code>VERSION</code> + <code>CHANGELOG.md</code></td></tr>
+        </table>
+
+        <h3>Próxima Versión Menor: v1.1.0 (Feature)</h3>
+        <table>
+            <tr><th>Aspecto</th><th>Detalle</th></tr>
+            <tr><td><strong>¿Qué cambia?</strong></td><td>Se agrega campo <code>fecha_creacion</code> a la tabla <code>ventas</code> para habilitar reportes por rango de fechas. Se agrega <code>stock_minimo</code> a <code>inventarios</code> para alertas de reabastecimiento. Se crea índice en <code>ventas.usuario_id</code>.</td></tr>
+            <tr><td><strong>¿Por qué cambia la versión?</strong></td><td>Son adiciones que <strong>no rompen</strong> compatibilidad. Los endpoints existentes retornan los mismos campos; los nuevos campos son opcionales. Es funcionalidad nueva → incremento MINOR.</td></tr>
+            <tr><td><strong>Riesgo</strong></td><td><span class="tag tag-green">Bajo</span> — Campos nuevos tienen valores por defecto. Registros existentes se actualizan con fecha actual.</td></tr>
+            <tr><td><strong>Script de migración</strong></td><td><code>migrations/v1_1_0_add_features.py</code></td></tr>
+        </table>
+
+        <h3>Próxima Versión Mayor: v1.2.0 (Breaking Change)</h3>
+        <table>
+            <tr><th>Aspecto</th><th>Detalle</th></tr>
+            <tr><td><strong>¿Qué cambia?</strong></td><td>Se divide <code>usuarios.nombre</code> en <code>nombre</code> + <code>apellido</code>. Se crea tabla <code>categorias</code> con FK obligatoria en <code>productos.categoria_id</code>. Se crean tablas <code>proveedores</code>, <code>producto_proveedor</code> y <code>auditoria_cambios</code>. Campos de fecha y estado en <code>facturas</code>.</td></tr>
+            <tr><td><strong>¿Por qué cambia la versión?</strong></td><td>Rompe compatibilidad: el campo <code>nombre</code> de usuarios ya no contiene el nombre completo, y productos ahora requieren <code>categoria_id</code>. Todo consumidor debe actualizar su contrato → incremento MAJOR.</td></tr>
+            <tr><td><strong>Riesgo</strong></td><td><span class="tag tag-red">Alto</span> — Transformación destructiva, nuevas dependencias entre tablas, múltiples esquemas afectados.</td></tr>
+            <tr><td><strong>Script de migración</strong></td><td><code>migrations/v1_2_0_breaking_changes.py</code></td></tr>
+        </table>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════╗ -->
+    <!-- ║  3. DEFINICIÓN DE CAMBIOS                                   ║ -->
+    <!-- ╚══════════════════════════════════════════════════════════════╝ -->
+    <div class="section-divider"><span>Sección 3 de 7</span></div>
+
+    <div class="section">
+        <span class="section-number">3 / 7</span>
+        <h2>Definición de Cambios</h2>
+
+        <h3>Cambios Funcionales</h3>
+        <table>
+            <tr><th>#</th><th>Cambio</th><th>Qué modifica</th><th>Riesgo</th><th>Componente C4</th></tr>
+            <tr>
+                <td><strong>CF-1</strong></td>
+                <td>Paginación y filtrado en listados de productos y ventas</td>
+                <td>Routers <code>productos.py</code> y <code>ventas.py</code>: parámetros <code>page</code>, <code>limit</code>, <code>precio_min</code>, <code>precio_max</code></td>
+                <td><span class="tag tag-yellow">Medio</span> — La respuesta cambia de lista plana a objeto paginado con metadatos</td>
+                <td>API Backend → Capa de Presentación (Routers)</td>
+            </tr>
+            <tr>
+                <td><strong>CF-2</strong></td>
+                <td>Reportes de ventas por rango de fechas</td>
+                <td>Nuevo endpoint <code>GET /ventas/reportes?desde=...&hasta=...</code>. Requiere campo <code>fecha_creacion</code> (migración v1.1.0)</td>
+                <td><span class="tag tag-green">Bajo</span> — Nuevo endpoint, no modifica existentes</td>
+                <td>API Backend → Lógica de Negocio (Services) + BD Transaccional</td>
+            </tr>
+        </table>
+
+        <h3>Cambio Técnico</h3>
+        <table>
+            <tr><th>#</th><th>Cambio</th><th>Qué modifica</th><th>Riesgo</th><th>Componente C4</th></tr>
+            <tr>
+                <td><strong>CT-1</strong></td>
+                <td>Reemplazo de <code>hashlib.md5</code> por <code>bcrypt</code> para hashing de contraseñas</td>
+                <td><code>auth_service.py</code>: se reemplaza <code>hashlib.md5()</code> por <code>bcrypt.hashpw()</code>. Nueva dependencia en <code>requirements.txt</code></td>
+                <td><span class="tag tag-red">Alto</span> — Hashes existentes (MD5) no serán compatibles con verificación bcrypt. Usuarios existentes no podrán autenticarse hasta reiniciar contraseña</td>
+                <td>API Backend → Capa de Servicio (auth_service) + BD (tabla usuarios)</td>
+            </tr>
+        </table>
+
+        <h3>Cambio de Datos</h3>
+        <table>
+            <tr><th>#</th><th>Cambio</th><th>Qué modifica</th><th>Riesgo</th><th>Componente C4</th></tr>
+            <tr>
+                <td><strong>CD-1</strong></td>
+                <td>División de <code>nombre</code> en <code>nombre</code> + <code>apellido</code>. Creación de tabla <code>categorias</code> y FK en productos</td>
+                <td>Tabla <code>usuarios</code>: transformación destructiva. Tabla <code>productos</code>: nueva columna obligatoria. Scripts en <code>migrations/v1_2_0_breaking_changes.py</code></td>
+                <td><span class="tag tag-red">Alto</span> — Transformación irreversible. Todos los queries y endpoints que refieren a <code>nombre</code> deben actualizarse</td>
+                <td>BD Transaccional + API Backend (todas las capas)</td>
+            </tr>
+        </table>
+
+        <h3>Baseline de Configuración del Release</h3>
+        <table>
+            <tr><th>Elemento</th><th>Valor</th></tr>
+            <tr><td>Versión del sistema</td><td><code>v1.2.0</code></td></tr>
+            <tr><td>Rama / Tag</td><td><code>release/v1.2.0</code> → merge a <code>main</code> → tag <code>v1.2.0</code></td></tr>
+            <tr><td>Componentes afectados</td><td>Models, Services, Schemas, Routers, BD Transaccional</td></tr>
+            <tr><td>Scripts de migración</td><td><code>v1_1_0_add_features.py</code> (prerrequisito) + <code>v1_2_0_breaking_changes.py</code></td></tr>
+            <tr><td>Variables de entorno</td><td><code>DATABASE_URL</code> (sin cambio), <code>SECRET_KEY</code> (migrar a env var), <code>BCRYPT_ROUNDS=12</code> (nueva)</td></tr>
+            <tr><td>Dependencias afectadas</td><td><code>bcrypt>=4.0.0</code> (nueva), <code>alembic>=1.13.0</code> (nueva)</td></tr>
+        </table>
+        <h4>Criterios de aprobación del release</h4>
+        <ol>
+            <li>Pipeline CI/CD en verde (todas las etapas)</li>
+            <li>Quality gates de SonarQube: 0 bugs bloqueantes, 0 vulnerabilidades críticas</li>
+            <li>Cobertura de tests ≥ 70%</li>
+            <li>Migraciones ejecutadas exitosamente en entorno de staging</li>
+            <li>Validación post-migración (<code>validate_migration.py</code>) sin fallos</li>
+            <li>Prueba manual del flujo completo de checkout en staging</li>
+            <li>Backup de producción creado y verificado</li>
+        </ol>
+        <h4>Evidencia que valida la seguridad del cambio</h4>
+        <ul>
+            <li>Reporte de <code>pytest tests/ -v --cov</code> con resultado exitoso</li>
+            <li>Log de ejecución exitosa de las migraciones en staging</li>
+            <li>Salida exitosa de <code>validate_migration.py</code></li>
+            <li>Dashboard de SonarQube con quality gate pasado</li>
+            <li>Confirmación de backup exitoso con tamaño y timestamp</li>
+        </ul>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════╗ -->
+    <!-- ║  4. SOLUCIÓN DEL CASO DE MIGRACIÓN                         ║ -->
+    <!-- ╚══════════════════════════════════════════════════════════════╝ -->
+    <div class="section-divider"><span>Sección 4 de 7</span></div>
+
+    <div class="section">
+        <span class="section-number">4 / 7</span>
+        <h2>Solución del Caso de Migración</h2>
+
+        <!-- a) Identificación del cambio -->
+        <h3>a) Identificación del Cambio de Modelo</h3>
+
+        <h4>Modelo Actual (v1.0.0)</h4>
+        <div class="diagram">┌────────────────────┐     ┌──────────────────┐     ┌───────────────────┐
+│     usuarios       │     │    productos      │     │   inventarios     │
+├────────────────────┤     ├──────────────────┤     ├───────────────────┤
+│ id          INT PK │     │ id        INT PK │     │ id         INT PK │
+│ nombre      TEXT   │     │ nombre    TEXT    │     │ producto_id INT FK│
+│ email       TEXT U │     │ descripcion TEXT  │     │ cantidad   INT    │
+│ password_hash TEXT │     │ precio    REAL    │     │ ubicacion  TEXT   │
+│ rol         TEXT   │     │ activo    BOOL    │     └───────────────────┘
+└────────────────────┘     └──────────────────┘
+         │                          │
+         │ FK                       │ FK
+         ▼                          ▼
+┌────────────────────┐     ┌───────────────────┐     ┌───────────────────┐
+│      ventas        │     │   venta_items     │     │    facturas       │
+├────────────────────┤     ├───────────────────┤     ├───────────────────┤
+│ id        INT PK   │     │ id         INT PK │     │ id           INT PK│
+│ usuario_id INT FK  │     │ venta_id   INT FK │     │ venta_id     INT FK│
+│ total     REAL     │     │ producto_id INT FK│     │ numero_factura TEXT│
+│ estado    TEXT     │     │ cantidad   INT    │     │ subtotal     REAL  │
+│ metodo_pago TEXT   │     │ precio_unit REAL  │     │ impuestos    REAL  │
+└────────────────────┘     └───────────────────┘     │ total        REAL  │
+                                                     │ nit_cliente  TEXT  │
+                                                     └───────────────────┘</div>
+
+        <h4>Modelo Nuevo (v1.2.0)</h4>
+        <div class="diagram">┌────────────────────┐     ┌──────────────────────┐     ┌───────────────────┐
+│     usuarios       │     │      productos       │     │   inventarios     │
+├────────────────────┤     ├──────────────────────┤     ├───────────────────┤
+│ id          INT PK │     │ id          INT PK   │     │ id         INT PK │
+│ nombre      TEXT   │◄NEW │ nombre      TEXT      │     │ producto_id INT FK│
+│ apellido    TEXT   │     │ descripcion TEXT      │     │ cantidad   INT    │
+│ email       TEXT U │     │ precio      REAL      │     │ ubicacion  TEXT   │
+│ password_hash TEXT │     │ activo      BOOL      │     │ stock_minimo INT  │◄NEW
+│ rol         TEXT   │     │ categoria_id INT FK   │◄NEW └───────────────────┘
+└────────────────────┘     └──────────────────────┘
+                                     │ FK
+                                     ▼
+                           ┌──────────────────┐     ┌───────────────────┐
+                           │   categorias     │     │   proveedores     │
+                           ├──────────────────┤     ├───────────────────┤
+                           │ id        INT PK │     │ id         INT PK │
+                           │ nombre    TEXT U  │     │ nombre     TEXT   │
+                           │ descripcion TEXT  │     │ contacto   TEXT   │
+                           │ activa    BOOL   │     │ telefono   TEXT   │
+                           │ fecha_creac TEXT │     │ email      TEXT U │
+                           └──────────────────┘     │ direccion  TEXT   │
+                                                    │ activo     BOOL   │
+                                                    └───────────────────┘
+
+┌────────────────────┐     ┌───────────────────┐     ┌────────────────────────┐
+│      ventas        │     │ producto_proveedor │     │   auditoria_cambios    │
+├────────────────────┤     ├───────────────────┤     ├────────────────────────┤
+│ ...campos previos  │     │ id         INT PK │     │ id             INT PK  │
+│ fecha_creacion TEXT│◄NEW │ producto_id INT FK│     │ tabla_afectada TEXT    │
+│ descuento_apl REAL│◄NEW │ proveedor_id INT FK│     │ tipo_operacion TEXT    │
+└────────────────────┘     │ precio_compra REAL│     │ datos_anteriores TEXT  │
+                           │ tiempo_entr  INT  │     │ datos_nuevos   TEXT    │
+┌───────────────────────┐  └───────────────────┘     │ fecha          TEXT    │
+│      facturas         │                            └────────────────────────┘
+├───────────────────────┤
+│ ...campos previos     │
+│ fecha_emision    TEXT │◄NEW
+│ fecha_vencimiento TEXT│◄NEW
+│ estado_factura   TEXT │◄NEW
+└───────────────────────┘</div>
+
+        <h4>Tabla Comparativa de Cambios</h4>
+        <table>
+            <tr><th>Tabla</th><th>Cambio</th><th>Tipo</th><th>Impacto</th></tr>
+            <tr><td>usuarios</td><td><code>nombre</code> → <code>nombre</code> + <code>apellido</code></td><td>Transformación destructiva</td><td>Todos los endpoints y queries de usuarios</td></tr>
+            <tr><td>productos</td><td>Nuevo FK <code>categoria_id</code></td><td>Nueva dependencia</td><td>Creación de productos requiere categoría</td></tr>
+            <tr><td>categorias</td><td>Tabla nueva</td><td>Adición</td><td>Nuevos endpoints CRUD</td></tr>
+            <tr><td>proveedores</td><td>Tabla nueva</td><td>Adición</td><td>Nuevos endpoints CRUD</td></tr>
+            <tr><td>producto_proveedor</td><td>Relación M:N nueva</td><td>Adición</td><td>Gestión de cadena de suministro</td></tr>
+            <tr><td>ventas</td><td>Campos <code>fecha_creacion</code>, <code>descuento_aplicado</code></td><td>Extensión compatible</td><td>Habilita reportes temporales</td></tr>
+            <tr><td>facturas</td><td>Campos de fecha y estado</td><td>Extensión compatible</td><td>Control de ciclo de vida</td></tr>
+            <tr><td>inventarios</td><td>Campo <code>stock_minimo</code></td><td>Extensión compatible</td><td>Alertas de reabastecimiento</td></tr>
+            <tr><td>auditoria_cambios</td><td>Tabla nueva</td><td>Adición</td><td>Trazabilidad de operaciones</td></tr>
+        </table>
+
+        <!-- b) Estrategia de migración -->
+        <h3>b) Estrategia de Migración</h3>
+        <p>Seleccionamos una <strong>migración gradual (por fases)</strong>:</p>
+        <ul>
+            <li><strong>Fase 1 (v1.1.0):</strong> Cambios aditivos sin riesgo — campos opcionales con defaults, índices. Se despliegan primero como prerrequisito.</li>
+            <li><strong>Fase 2 (v1.2.0):</strong> Cambios estructurales mayores — nuevas tablas, FKs, transformación de datos. Se ejecutan después de validar la Fase 1.</li>
+        </ul>
+        <div class="alert alert-warn">
+            <strong>¿Por qué no Big Bang?</strong> Si todos los cambios se aplican de golpe y la división de nombres falla, quedaríamos con tablas a medio crear y datos parcialmente transformados. La migración gradual permite abortar entre fases sin haber tocado los datos más sensibles.
+        </div>
+        <p>Esta decisión está alineada con la arquitectura de monolito modular en capas: cada fase corresponde a un conjunto coherente de cambios que puede validarse independientemente.</p>
+
+        <!-- c) Estrategia de transformación -->
+        <h3>c) Estrategia de Transformación de Datos</h3>
+        <p>Enfoque <strong>híbrido ETL/ELT</strong>:</p>
+        <table>
+            <tr><th>Operación</th><th>Enfoque</th><th>Justificación</th></tr>
+            <tr>
+                <td>División de <code>nombre</code> en usuarios</td>
+                <td><strong>ETL</strong> (Python)</td>
+                <td>Lógica de parsing más fácil de depurar y testear en Python. Permite manejar casos edge (nombres vacíos, formatos inesperados)</td>
+            </tr>
+            <tr>
+                <td>Asignar categoría por defecto</td>
+                <td><strong>ELT</strong> (SQL)</td>
+                <td><code>UPDATE</code> simple con valor constante, más eficiente para operaciones bulk</td>
+            </tr>
+            <tr>
+                <td>Rellenar <code>fecha_creacion</code></td>
+                <td><strong>ELT</strong> (SQL)</td>
+                <td>Actualización uniforme sin lógica de transformación</td>
+            </tr>
+        </table>
+        <p><strong>Modo:</strong> Batch (lote único) dado el volumen actual (SQLite local). Con 100k+ registros, se usaría procesamiento incremental con batches de 1000 y commits intermedios.</p>
+        <p><strong>Datos existentes vs. nuevos:</strong> Los existentes se transforman durante la migración. Los nuevos se insertan directamente con la nueva estructura.</p>
+
+        <!-- d) Problemas de calidad -->
+        <h3>d) Problemas de Calidad de Datos</h3>
+        <table>
+            <tr><th>Problema</th><th>Cómo se detecta</th><th>Cómo se corrige</th><th>Riesgo</th></tr>
+            <tr>
+                <td><strong>1. Nombres en formato inconsistente</strong><br>"Juan Pérez", "MARIA GARCIA", "  josé  "</td>
+                <td><code>SELECT nombre FROM usuarios WHERE nombre != TRIM(nombre) OR nombre LIKE '%  %'</code></td>
+                <td>Normalizar antes de transformar: <code>TRIM()</code>, reducir espacios múltiples. La función <code>transform_nombre()</code> aplica <code>strip().split(" ", 1)</code></td>
+                <td><span class="tag tag-yellow">Medio</span></td>
+            </tr>
+            <tr>
+                <td><strong>2. Usuarios con nombre vacío o NULL</strong></td>
+                <td><code>SELECT id FROM usuarios WHERE nombre IS NULL OR nombre = ''</code></td>
+                <td>Asignar "Sin nombre" con apellido vacío. Registrar para corrección manual</td>
+                <td><span class="tag tag-red">Alto</span> — NULL causa crash en <code>split()</code></td>
+            </tr>
+            <tr>
+                <td><strong>3. Ventas sin usuario válido (relaciones huérfanas)</strong></td>
+                <td><code>SELECT v.id FROM ventas v LEFT JOIN usuarios u ON v.usuario_id = u.id WHERE u.id IS NULL</code></td>
+                <td>No eliminar (son registros contables). Asignar a usuario "Sistema" o marcar para revisión</td>
+                <td><span class="tag tag-red">Alto</span> — Errores de integridad referencial</td>
+            </tr>
+        </table>
+
+        <!-- e) Manejo de errores -->
+        <h3>e) Manejo de Errores en la Migración</h3>
+        <table>
+            <tr><th>Estrategia</th><th>Cuándo aplicar</th><th>Implementación</th></tr>
+            <tr>
+                <td><strong>Fail-fast</strong></td>
+                <td>Errores en DDL: si <code>CREATE TABLE categorias</code> falla, todo se detiene porque los siguientes pasos dependen de esta estructura</td>
+                <td><code>try/except</code> con <code>conn.rollback()</code> y <code>return False</code></td>
+            </tr>
+            <tr>
+                <td><strong>Skip + log</strong></td>
+                <td>Errores en transformaciones individuales: si un usuario tiene un nombre imparseable, no tiene sentido detener toda la migración</td>
+                <td>Excepciones por usuario se acumulan en <code>errores_transformacion[]</code> y se reportan al final</td>
+            </tr>
+            <tr>
+                <td><strong>Registro para reprocesamiento</strong></td>
+                <td>Datos que requieren intervención humana</td>
+                <td>Errores se imprimen con ID del registro, valor original y tipo de error para reprocesar solo los fallidos</td>
+            </tr>
+        </table>
+
+        <!-- f) Validación -->
+        <h3>f) Validación de la Migración</h3>
+        <p>Implementada en <code>migrations/validate_migration.py</code>:</p>
+        <table>
+            <tr><th>Validación</th><th>Qué verifica</th><th>Criterio de éxito</th></tr>
+            <tr><td>📊 Conteo de registros</td><td>Cada tabla tiene registros, no se perdieron datos</td><td>Conteo post ≥ conteo pre</td></tr>
+            <tr><td>🔗 Integridad referencial</td><td>FKs: ventas→usuarios, items→ventas, items→productos, facturas→ventas, inventarios→productos</td><td>0 registros huérfanos</td></tr>
+            <tr><td>🧪 Consistencia</td><td>Precios ≥ 0, stock ≥ 0, facturas únicas</td><td>0 violaciones</td></tr>
+            <tr><td>🆕 Específicas v1.2.0</td><td>Tabla categorias existe, productos tienen categoría, usuarios tienen nombre no vacío</td><td>Todos ✅</td></tr>
+            <tr><td>📋 Historial</td><td><code>migration_history</code> muestra migraciones activas</td><td>v1.1.0 y v1.2.0 ACTIVAS</td></tr>
+        </table>
+        <pre><code>python migrations/validate_migration.py inventario_ventas.db</code></pre>
+
+        <!-- g) Idempotencia -->
+        <h3>g) Idempotencia y Reprocesamiento</h3>
+
+        <h4>¿Se puede ejecutar la migración más de una vez sin efectos secundarios?</h4>
+        <p><strong>Sí.</strong> Los scripts implementan idempotencia mediante:</p>
+        <ul>
+            <li><code>check_already_applied()</code> consulta <code>migration_history</code> antes de ejecutar. Si ya está registrada, muestra <code>[SKIP]</code>.</li>
+            <li><code>CREATE TABLE IF NOT EXISTS</code> evita errores con tablas existentes.</li>
+            <li><code>ALTER TABLE ADD COLUMN</code> con <code>try/except</code> que detecta "duplicate column".</li>
+            <li><code>INSERT OR IGNORE</code> con constraints <code>UNIQUE</code> para datos semilla.</li>
+        </ul>
+
+        <h4>¿Cómo manejaríamos un fallo parcial?</h4>
+        <ol>
+            <li>Identificar el paso fallido usando los mensajes de log (✔ o ❌)</li>
+            <li>Corregir la causa (dato corrupto, constraint violado)</li>
+            <li>Re-ejecutar la migración — los pasos ya completados se omiten por idempotencia</li>
+        </ol>
+
+        <h4>¿Es posible reprocesar sin duplicar?</h4>
+        <p><strong>Sí</strong> — la transformación usa <code>UPDATE</code> (no <code>INSERT</code>), las tablas usan <code>IF NOT EXISTS</code>, y los datos semilla usan <code>INSERT OR IGNORE</code>.</p>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════╗ -->
+    <!-- ║  5. ESTRATEGIA DE ROLLBACK                                  ║ -->
+    <!-- ╚══════════════════════════════════════════════════════════════╝ -->
+    <div class="section-divider"><span>Sección 5 de 7</span></div>
+
+    <div class="section">
+        <span class="section-number">5 / 7</span>
+        <h2>Estrategia de Rollback</h2>
+
+        <h3>a) Rollback de Aplicación (Código)</h3>
+        <p>Para regresar a la versión anterior del sistema:</p>
+        <pre><code># Opción 1: Revertir al tag de la versión anterior
+git checkout tags/v1.0.0
+
+# Opción 2: Revert del merge commit
+git revert &lt;commit-hash-del-merge-de-release&gt;
+
+# Redeploy en ambos casos:
+pip install -r requirements.txt
+# Reiniciar uvicorn</code></pre>
+        <p>El mecanismo principal son <strong>Git tags</strong>: cada release tiene su tag (<code>v1.0.0</code>, <code>v1.1.0</code>, <code>v1.2.0</code>), lo que permite revertir en segundos.</p>
+        <div class="alert alert-warn">
+            <strong>Precaución:</strong> Revertir el código sin revertir la BD causa incompatibilidad. El código v1.0.0 espera un campo <code>nombre</code> completo, pero tras la migración v1.2.0, ese campo solo contiene el primer nombre.
+        </div>
+
+        <h3>b) Rollback de Base de Datos (Estructura)</h3>
+        <p>Cada script de migración incluye una función <code>rollback()</code>:</p>
+        <pre><code># Revertir v1.2.0
+python migrations/v1_2_0_breaking_changes.py --rollback
+
+# Revertir v1.1.0
+python migrations/v1_1_0_add_features.py --rollback</code></pre>
+        <ul>
+            <li><strong>v1.1.0</strong> (fácil): Reconstrucción de tablas sin columnas agregadas usando el patrón backup → drop → recrear → restaurar en SQLite.</li>
+            <li><strong>v1.2.0</strong> (parcial): Se eliminan tablas nuevas y se restauran usuarios desde la tabla de backup <code>_backup_usuarios_v1_2_0</code>.</li>
+        </ul>
+
+        <h3>c) Rollback de Datos (El Más Crítico)</h3>
+        <table>
+            <tr><th>Cambio</th><th>¿Rollback posible?</th><th>Dificultad</th><th>Estrategia</th></tr>
+            <tr>
+                <td>Agregar <code>fecha_creacion</code></td>
+                <td><span class="tag tag-green">Sí ✓</span></td>
+                <td>Fácil</td>
+                <td>Se elimina la columna; datos eran valores por defecto</td>
+            </tr>
+            <tr>
+                <td>Agregar <code>stock_minimo</code></td>
+                <td><span class="tag tag-green">Sí ✓</span></td>
+                <td>Fácil</td>
+                <td>Se elimina; valores eran defaults</td>
+            </tr>
+            <tr>
+                <td>Crear tabla <code>categorias</code></td>
+                <td><span class="tag tag-green">Sí ✓</span></td>
+                <td>Fácil</td>
+                <td><code>DROP TABLE</code> — se pierden categorías creadas post-migración</td>
+            </tr>
+            <tr>
+                <td>FK <code>categoria_id</code> en productos</td>
+                <td><span class="tag tag-yellow">Parcial ⚠</span></td>
+                <td>Medio</td>
+                <td>Se elimina columna, se pierde la asociación producto-categoría</td>
+            </tr>
+            <tr>
+                <td>Dividir <code>nombre</code> → nombre + apellido</td>
+                <td><span class="tag tag-red">No ✗</span></td>
+                <td>Muy difícil</td>
+                <td>Backup <code>_backup_usuarios_v1_2_0</code> restaura originales, pero usuarios creados post-migración no tienen backup</td>
+            </tr>
+            <tr>
+                <td>Datos de proveedores y auditoría</td>
+                <td><span class="tag tag-red">No ✗</span></td>
+                <td>Irreversible</td>
+                <td><code>DROP TABLE</code> elimina permanentemente datos post-migración</td>
+            </tr>
+        </table>
+
+        <div class="alert alert-danger">
+            <strong>Para cambios irreversibles, nuestra estrategia es:</strong>
+            <ol style="margin-top:8px">
+                <li><strong>Corrección hacia adelante (forward-fix):</strong> nueva migración v1.2.1 que corrige el problema sin revertir.</li>
+                <li><strong>Hotfix:</strong> parche que acepta ambos formatos (nombre completo y nombre/apellido) temporalmente.</li>
+                <li><strong>Restaurar desde backup:</strong> último recurso — se pierden transacciones post-backup.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════╗ -->
+    <!-- ║  6. ESCENARIO CRÍTICO                                       ║ -->
+    <!-- ╚══════════════════════════════════════════════════════════════╝ -->
+    <div class="section-divider"><span>Sección 6 de 7</span></div>
+
+    <div class="section">
+        <span class="section-number">6 / 7</span>
+        <h2>Escenario Crítico</h2>
+
+        <div class="alert alert-danger">
+            <strong>Situación:</strong> 30 minutos después de ejecutar el despliegue v1.2.0, los vendedores reportan que el flujo de checkout falla con error 500. El sistema muestra "Internal Server Error" al registrar ventas.
+        </div>
+
+        <!-- a) Diagnóstico -->
+        <h3>a) Diagnóstico Inicial</h3>
+        <p><strong>Evidencia utilizada:</strong></p>
+        <ol>
+            <li><strong>Logs de uvicorn:</strong>
+            <pre><code># En los logs encontramos:
+sqlalchemy.exc.OperationalError: no such column: usuarios.nombre
+File "services/checkout_service.py", line 23, in orquestar_checkout_completo
+  user_db = db.query(Usuario).filter(Usuario.id == usuario_id).first()</code></pre>
+            </li>
+            <li><strong>Métricas:</strong> Tasa de errores 500 subió de 0% a ~40% en los últimos 30 minutos.</li>
+            <li><strong>Comportamiento:</strong> Endpoints de productos e inventario SÍ funcionan. Solo los que involucran <code>usuarios</code> fallan → problema focalizado.</li>
+        </ol>
+
+        <!-- b) Origen -->
+        <h3>b) Identificación del Origen</h3>
+        <p><strong>Causa:</strong> Incompatibilidad código-datos. La migración v1.2.0 dividió <code>nombre</code> y agregó <code>apellido</code>, pero el modelo SQLAlchemy en <code>models/usuario.py</code> no incluyó el campo <code>apellido</code>. El ORM no puede mapear las columnas correctamente.</p>
+        <p><strong>Tipo de problema:</strong> <span class="tag tag-red">Código + Datos</span> — La migración de datos fue correcta pero el código desplegado no corresponde al esquema actualizado.</p>
+
+        <!-- c) Decisión -->
+        <h3>c) Decisión Bajo Presión</h3>
+        <p><strong>Acción: Investigar primero (máximo 10 min), luego decidir.</strong></p>
+        <div class="alert alert-warn">
+            <strong>Justificación:</strong>
+            <ul style="margin-top:8px">
+                <li>No rollback inmediato: ya hay 30 min de transacciones con nueva estructura, se perderían.</li>
+                <li>No dejar así: vendedores no pueden operar → impacto directo al negocio.</li>
+                <li>Investigar rápido para determinar si es un fix simple o algo más profundo.</li>
+            </ul>
+        </div>
+        <p><strong>Acciones inmediatas:</strong></p>
+        <ol>
+            <li>Comunicar: "Investigando error en checkout, ETA 10 minutos"</li>
+            <li>Vendedores registran ventas manualmente como contingencia</li>
+            <li>Revisar si <code>usuario.py</code> en el tag v1.2.0 tiene el campo <code>apellido</code></li>
+        </ol>
+
+        <!-- d) Evaluación -->
+        <h3>d) Evaluación del Rollback</h3>
+        <p><strong>¿El rollback de 5.5 es aplicable? → Parcialmente, pero NO es la mejor opción.</strong></p>
+        <table>
+            <tr><th>Opción</th><th>Viabilidad</th><th>Consecuencia</th></tr>
+            <tr>
+                <td>Rollback completo (BD + código a v1.0.0)</td>
+                <td><span class="tag tag-yellow">Posible pero costoso</span></td>
+                <td>Se pierden 30 min de transacciones. Requiere restaurar backup.</td>
+            </tr>
+            <tr>
+                <td><strong>Forward-fix (recomendado)</strong></td>
+                <td><span class="tag tag-green">Viable ✓</span></td>
+                <td>Agregar <code>apellido = Column(String, default="")</code> al modelo, commit, tag v1.2.1, redesplegar. ~5 minutos.</td>
+            </tr>
+            <tr>
+                <td>Rollback parcial (solo código a v1.1.0)</td>
+                <td><span class="tag tag-red">No viable</span></td>
+                <td>Código v1.1.0 no conoce las tablas nuevas ni el esquema modificado.</td>
+            </tr>
+        </table>
+        <p><strong>Decisión final: Forward-fix.</strong> Se actualiza el modelo, se tagea <code>v1.2.1</code>, y se redesplega. Checkout funciona sin perder datos.</p>
+
+        <!-- e) Lecciones -->
+        <h3>e) Lecciones Aprendidas</h3>
+        <table>
+            <tr><th>Pregunta</th><th>Respuesta</th></tr>
+            <tr>
+                <td><strong>¿El plan de despliegue fue suficiente?</strong></td>
+                <td><strong>No.</strong> No se verificó la compatibilidad entre el modelo ORM y el esquema real de la BD. Tampoco se hizo prueba de humo en producción antes de liberar tráfico.</td>
+            </tr>
+            <tr>
+                <td><strong>¿Qué faltó?</strong></td>
+                <td>
+                    <ul>
+                        <li>Test automatizado que valide correspondencia modelos ↔ columnas reales de BD</li>
+                        <li>Checklist de revisión: por cada ALTER TABLE, verificar cambio en models/</li>
+                        <li>Canary deploy: liberar tráfico gradualmente (10% → 50% → 100%)</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>¿Qué agregarían?</strong></td>
+                <td>
+                    <ul>
+                        <li><strong>Test de schema sync:</strong> comparar <code>Base.metadata</code> con columnas reales</li>
+                        <li><strong>Blue-green deploy:</strong> dos entornos, cambiar tráfico solo cuando esté validado</li>
+                        <li><strong>Smoke tests automatizados:</strong> ejecutar los 3 flujos críticos post-deploy</li>
+                        <li><strong>Rollback automático:</strong> si se detecta >N errores 500 en 15 min</li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Plan de despliegue incluido aquí -->
+        <h3>Plan de Despliegue Controlado (Referencia)</h3>
+        <p>Implementado en <code>scripts/deploy.py</code>, el plan sigue estas fases:</p>
+
+        <h4>Validaciones previas</h4>
+        <ul>
+            <li>Pipeline CI/CD en verde</li>
+            <li>Quality gates de SonarQube cumplidos</li>
+            <li>Tests críticos ejecutados y pasando</li>
+            <li>Migración validada en staging</li>
+        </ul>
+
+        <h4>Backup</h4>
+        <pre><code>python scripts/backup_db.py inventario_ventas.db
+# Resultado: backups/inventario_ventas_backup_20260501_080000.db</code></pre>
+
+        <h4>Ejecución (primero datos, luego código)</h4>
+        <ol>
+            <li>Activar modo mantenimiento</li>
+            <li>Migración Fase 1: <code>python migrations/v1_1_0_add_features.py</code></li>
+            <li>Validar Fase 1: <code>python migrations/validate_migration.py</code></li>
+            <li>Migración Fase 2: <code>python migrations/v1_2_0_breaking_changes.py</code></li>
+            <li>Validar Fase 2: <code>python migrations/validate_migration.py</code></li>
+            <li>Desplegar código: <code>git checkout tags/v1.2.0</code></li>
+            <li>Reiniciar uvicorn</li>
+            <li>Desactivar mantenimiento</li>
+        </ol>
+
+        <h4>Validación post-despliegue</h4>
+        <ul>
+            <li>Health check: <code>GET /</code></li>
+            <li>Flujo de checkout completo de prueba</li>
+            <li>Verificar usuarios con nombre/apellido</li>
+            <li>Revisión de logs de aplicación</li>
+        </ul>
+
+        <h4>Criterio de abortar</h4>
+        <ul>
+            <li>Migración retorna <code>[ERROR]</code></li>
+            <li>Validación tiene resultado <code>FAIL</code></li>
+            <li>Checkout falla (error 500)</li>
+            <li>>5% de usuarios con errores de transformación</li>
+            <li>API no responde en 30 segundos post-restart</li>
+        </ul>
+
+        <h4>Punto de no retorno</h4>
+        <p>Una vez que se crean transacciones nuevas con la estructura v1.2.0, revertir significaría perder esos datos. La estrategia cambia de "revertir" a "corregir hacia adelante".</p>
+    </div>
+
+    <!-- ╔══════════════════════════════════════════════════════════════╗ -->
+    <!-- ║  7. REFLEXIÓN FINAL                                         ║ -->
+    <!-- ╚══════════════════════════════════════════════════════════════╝ -->
+    <div class="section-divider"><span>Sección 7 de 7</span></div>
+
+    <div class="section">
+        <span class="section-number">7 / 7</span>
+        <h2>Reflexión Final</h2>
+
+        <h3>¿Qué problemas no detecta el pipeline CI/CD?</h3>
+        <ul>
+            <li><strong>Incompatibilidad modelos ↔ esquema de BD:</strong> Los tests usan BD en memoria creada desde los modelos, siempre coinciden. En producción, la BD real puede tener esquema diferente tras migraciones manuales.</li>
+            <li><strong>Problemas de rendimiento bajo carga:</strong> Una consulta que funciona en 10ms con 100 registros puede tardar 30 segundos con 100,000 en producción.</li>
+            <li><strong>Fallos en integraciones externas:</strong> Los mocks siempre retornan éxito. En producción, la pasarela de pagos puede fallar por timeout o cambios en su API.</li>
+            <li><strong>Errores de datos reales:</strong> Los tests usan datos perfectos y controlados. Los datos reales tienen formatos inesperados, caracteres especiales, valores extremos.</li>
+        </ul>
+
+        <h3>¿Qué problemas solo aparecen en producción?</h3>
+        <ul>
+            <li><strong>Condiciones de carrera:</strong> Dos vendedores comprando el último producto en stock simultáneamente → ambos ven stock=1 → ambos descuentan → stock=-1.</li>
+            <li><strong>Datos acumulados:</strong> La BD crece; queries lentos sin índices adecuados.</li>
+            <li><strong>Configuración de entorno:</strong> Variables de entorno mal configuradas, diferencias entre SO del CI (Ubuntu) y servidor de producción.</li>
+            <li><strong>Fallos intermitentes:</strong> La pasarela simulada falla 5% del tiempo, pero en producción real podría ser 15% en horarios pico.</li>
+        </ul>
+
+        <h3>¿Qué fue más difícil: diseñar el sistema o migrarlo?</h3>
+        <p><strong>Migrarlo fue significativamente más difícil.</strong> Diseñar desde cero permite tomar decisiones libremente, sin restricciones ni datos existentes. Migrar en producción implica:</p>
+        <ul>
+            <li>No perder ni un solo registro de ventas o facturas (documentos legales/contables)</li>
+            <li>Transformar datos con formatos inconsistentes acumulados durante meses de operación</li>
+            <li>Mantener compatibilidad temporal durante la transición</li>
+            <li>Coordinar código, estructura de BD y datos en una ventana de tiempo limitada</li>
+            <li>Tener un plan B (rollback) para cada posible falla</li>
+        </ul>
+        <p>El diseño es como construir una casa nueva; la migración es como remodelarla mientras la familia sigue viviendo adentro.</p>
+
+        <h3>¿Qué decisión consideran más riesgosa?</h3>
+        <p><strong>La división del campo <code>nombre</code> de usuarios</strong> es la más riesgosa por tres razones:</p>
+        <ol>
+            <li><strong>Transformación destructiva:</strong> "Juan Carlos de la Fuente Rodríguez" se divide en nombre="Juan" y apellido="Carlos de la Fuente Rodríguez", pero la intención original podría haber sido otra. No hay algoritmo que lo resuelva con certeza.</li>
+            <li><strong>Impacto transversal:</strong> todos los componentes que muestran, buscan o procesan nombres deben actualizarse simultáneamente.</li>
+            <li><strong>Rollback parcial:</strong> usuarios creados post-migración ya tienen nombre/apellido separados; revertir requiere concatenar y se pierde la estructura.</li>
+        </ol>
+    </div>
+
+    <!-- ===== ANEXO ===== -->
+    <div class="section" style="background: linear-gradient(135deg, var(--surface) 0%, #1e1b4b22 100%);">
+        <h2>Anexo: Archivos Creados en el Proyecto</h2>
+        <table>
+            <tr><th>Archivo</th><th>Propósito</th></tr>
+            <tr><td><code>VERSION</code></td><td>Número de versión actual (1.0.0)</td></tr>
+            <tr><td><code>CHANGELOG.md</code></td><td>Registro de cambios por versión (SemVer)</td></tr>
+            <tr><td><code>migrations/v1_1_0_add_features.py</code></td><td>Migración MINOR + rollback idempotente</td></tr>
+            <tr><td><code>migrations/v1_2_0_breaking_changes.py</code></td><td>Migración MAJOR con transformación de datos + backup + rollback</td></tr>
+            <tr><td><code>migrations/validate_migration.py</code></td><td>Validación post-migración (5 categorías de checks)</td></tr>
+            <tr><td><code>scripts/backup_db.py</code></td><td>Backup y restauración de BD con timestamps</td></tr>
+            <tr><td><code>scripts/deploy.py</code></td><td>Despliegue controlado paso a paso</td></tr>
+            <tr><td><code>scripts/rollback.py</code></td><td>Rollback multinivel con clasificación</td></tr>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>
